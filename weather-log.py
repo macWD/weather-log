@@ -148,12 +148,14 @@ def console(aq, aq_get_status, wx, wx_get_status):
 # MAIN PROGRAM
 def main(arg_list):
     # parse the arg list
-    ARG      =  'h'
-    ARGUMENT = ['help']
-    HELPSTRING = ['WEATHER STATION',
-                  '  usage: aqi.py [-h]',
+    ARG      =  'h'   + 'v'      + 'q'
+    ARGUMENT = ['help', 'verbose', 'quiet']
+    HELPSTRING = ['WEATHER LOG',
+                  '  usage: weather-log.py [-h] [-v] [-q]',
                   '  optional arguments:',
-                  '    -h, --help          Show this help message.']
+                  '    -h, --help           Show this help message.',
+                  '    -v, --verbose        Display data to the console once per minute',
+                  '    -q, --quiet          Display nothing to the console (no debug)']
     try:
         opts, args = getopt.getopt(arg_list,ARG,ARGUMENT)
     except getopt.GetoptError:
@@ -162,11 +164,18 @@ def main(arg_list):
             print(s)
         sys.exit(2)
 
+    verbose = False
+    quiet   = False
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             for s in HELPSTRING:
                 print(s)
             return
+        elif opt in ('-v', '--verbose'):
+            verbose = True
+            print ('Verbose mode')
+        elif opt in ('-q', '--quiet'):
+            quiet = True
         else:
             print('Invalid argument ' + opt + '. Use -h option.')
 
@@ -174,6 +183,8 @@ def main(arg_list):
     file_date = datetime.datetime.now()
     filespec = file_date.strftime('%Y%m%d_%H%M%S') + '.csv'
     # the get() fails if we call too soon after boot so pause
+    if quiet == False:
+        print(filespec + ' will start in 10 seconds')
     time.sleep(10)
 
     while True:
@@ -203,11 +214,16 @@ def main(arg_list):
             else:
                 f = open(filespec,"a")
                 f.write(csv_header)
+                if verbose:
+                    print(csv_header)
             f.write(csv_data)
             f.close()
-
+            if verbose:
+                print(csv_data)
         else:
             wx_dict = {}
+            if quiet == False:
+                print('Error ' + wx_sensor_data.status_code)
 
         # sleep for a minute between AW samples
         time.sleep(60)

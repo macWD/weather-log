@@ -179,15 +179,30 @@ def main(arg_list):
         else:
             print('Invalid argument ' + opt + '. Use -h option.')
 
-    # load filespec
+    # stuff for the first filespec
     file_date = datetime.datetime.now()
+    file_month = file_date.month        # this will be used in the main loop
     filespec = file_date.strftime('%Y%m%d_%H%M%S') + '.csv'
+    if verbose:
+        print( 'Month = ' + str(file_month) )
     # the get() fails if we call too soon after boot so pause
     if quiet == False:
         print(filespec + ' will start in 10 seconds')
     time.sleep(10)
 
     while True:
+        # filespec changes when we go to the next month
+        file_date_now = datetime.datetime.now()
+        file_month_now = file_date_now.month
+        if file_month_now != file_month:
+            file_month = file_month_now
+            filespec = file_date_now.strftime('%Y%m%d_%H%M%S') + '.csv'
+            if verbose:
+                print( 'Month = ' + str(file_month) )
+            # the get() fails if we call too soon after boot so pause
+            if quiet == False:
+                print(filespec + ' starting')
+
         # pull data for our station from ambient weather cloud
         wx_sensor_data = get_AW_SensorData(keys.AW['api_key'])      # request JSON
         wx_JSON = wx_sensor_data.content

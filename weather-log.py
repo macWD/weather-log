@@ -238,7 +238,7 @@ def main(arg_list):
         else:
             wx_dict = {}
             if quiet == False:
-                print('Error ' + wx_sensor_data.status_code)
+                print('Error ' + str(wx_sensor_data.status_code) )
 
         # sleep for a minute between AW samples
         time.sleep(60)
